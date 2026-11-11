@@ -3,7 +3,6 @@
 
 session_start();
 
-// Configurar la zona horaria exacta de Colombia
 date_default_timezone_set('America/Bogota');
 
 require_once '../../config/database.php';
@@ -132,6 +131,7 @@ function obtenerOCrearCarritoBd(
 
         $colPk = 'id_carrito';
         $colCliente = 'id_cliente';
+        $colFecha = '';
 
         foreach ($columnas as $c) {
             if ($c['Key'] === 'PRI') {
@@ -141,6 +141,11 @@ function obtenerOCrearCarritoBd(
                 $colCliente = 'id_usuario';
             } elseif ($c['Field'] === 'id_cliente') {
                 $colCliente = 'id_cliente';
+            }
+            if ($c['Field'] === 'fecha_creacion') {
+                $colFecha = 'fecha_creacion';
+            } elseif ($c['Field'] === 'fecha') {
+                $colFecha = 'fecha';
             }
         }
 
@@ -163,21 +168,65 @@ function obtenerOCrearCarritoBd(
         $fila =
             $stmtB->fetch(PDO::FETCH_ASSOC);
 
+        $ahora =
+            date('Y-m-d H:i:s');
+
         if ($fila) {
-            return (int) $fila[$colPk];
+            $idExistente =
+                (int) $fila[$colPk];
+            if ($colFecha !== '') {
+                $sqlUpdFecha =
+                    "UPDATE carrito SET " .
+                    $colFecha .
+                    " = :ahora WHERE " .
+                    $colPk .
+                    " = :id_c";
+                $stmtUF =
+                    $conn->prepare($sqlUpdFecha);
+                $stmtUF->bindParam(':ahora', $ahora);
+                $stmtUF->bindParam(
+                    ':id_c',
+                    $idExistente,
+                    PDO::PARAM_INT
+                );
+                $stmtUF->execute();
+            }
+            return $idExistente;
         }
 
-        return insertarSegunColumnas(
-            $conn,
-            'carrito',
-            [
-                'id_usuario' => $idUsuario,
-                'id_cliente' => $idUsuario,
-                'fecha' => date('Y-m-d H:i:s'),
-                'fecha_creacion' => date('Y-m-d H:i:s'),
-                'estado' => 'Activo'
-            ]
-        );
+        $nuevoId =
+            insertarSegunColumnas(
+                $conn,
+                'carrito',
+                [
+                    'id_usuario' => $idUsuario,
+                    'id_cliente' => $idUsuario,
+                    'fecha' => $ahora,
+                    'fecha_creacion' => $ahora,
+                    'estado' => 'Activo'
+                ]
+            );
+
+        if ($nuevoId > 0) {
+            return $nuevoId;
+        }
+
+        $sqlUltimo =
+            "SELECT " .
+            $colPk .
+            " FROM carrito ORDER BY " .
+            $colPk .
+            " DESC LIMIT 1";
+        $stmtUlt =
+            $conn->query($sqlUltimo);
+        $filaUlt =
+            $stmtUlt->fetch(PDO::FETCH_ASSOC);
+
+        if ($filaUlt) {
+            return (int) $filaUlt[$colPk];
+        }
+
+        return 0;
     } catch (Throwable $e) {
         return 0;
     }
@@ -194,63 +243,40 @@ function sincronizarDetalleCarritoBd(
         return;
     }
     try {
-        $sqlExiste =
-            "SELECT cantidad FROM detalle_carrito WHERE id_carrito = :idc AND id_producto = :idp LIMIT 1";
-        $stmtEx =
-            $conn->prepare($sqlExiste);
-        $stmtEx->bindParam(
+        $sqlDel =
+            "DELETE FROM detalle_carrito WHERE id_carrito = :idc AND id_producto = :idp";
+        $stmtDel =
+            $conn->prepare($sqlDel);
+        $stmtDel->bindParam(
             ':idc',
             $idCarritoBd,
             PDO::PARAM_INT
         );
-        $stmtEx->bindParam(
+        $stmtDel->bindParam(
             ':idp',
             $idProducto,
             PDO::PARAM_INT
         );
-        $stmtEx->execute();
-        $filaEx =
-            $stmtEx->fetch(PDO::FETCH_ASSOC);
+        $stmtDel->execute();
 
-        if ($filaEx) {
-            $sqlUpd =
-                "UPDATE detalle_carrito SET cantidad = :cant WHERE id_carrito = :idc AND id_producto = :idp";
-            $stmtUpd =
-                $conn->prepare($sqlUpd);
-            $stmtUpd->bindParam(
-                ':cant',
-                $cantidad,
-                PDO::PARAM_INT
-            );
-            $stmtUpd->bindParam(
-                ':idc',
-                $idCarritoBd,
-                PDO::PARAM_INT
-            );
-            $stmtUpd->bindParam(
-                ':idp',
-                $idProducto,
-                PDO::PARAM_INT
-            );
-            $stmtUpd->execute();
-        } else {
-            $subtotalItem =
-                (float) $precioUnitario *
-                (int) $cantidad;
+        $subtotalItem =
+            (float) $precioUnitario *
+            (int) $cantidad;
 
-            insertarSegunColumnas(
-                $conn,
-                'detalle_carrito',
-                [
-                    'id_carrito' => $idCarritoBd,
-                    'id_producto' => $idProducto,
-                    'cantidad' => $cantidad,
-                    'precio_unitario' => (float) $precioUnitario,
-                    'precio' => (float) $precioUnitario,
-                    'subtotal' => $subtotalItem
-                ]
-            );
-        }
+        insertarSegunColumnas(
+            $conn,
+            'detalle_carrito',
+            [
+                'id_carrito' => $idCarritoBd,
+                'id_producto' => $idProducto,
+                'cantidad' => $cantidad,
+                'precio_unitario' => (float) $precioUnitario,
+                'precio' => (float) $precioUnitario,
+                'valor_unitario' => (float) $precioUnitario,
+                'subtotal' => $subtotalItem,
+                'total' => $subtotalItem
+            ]
+        );
     } catch (Throwable $e) {
         // Continúa en caso de restricción específica
     }
@@ -264,7 +290,7 @@ if ($conn) {
     try {
         $conn->exec("SET time_zone = '-05:00'");
     } catch (Throwable $e) {
-        // Continúa con date_default_timezone_set de PHP
+        // Usa zona horaria de PHP
     }
 }
 
@@ -276,7 +302,6 @@ $accion =
     $_REQUEST['accion'] ?? 'obtener';
 
 if ($accion === 'agregar') {
-    // Exigir sesión iniciada para poder agregar productos al carrito
     if (empty($_SESSION['id_usuario'])) {
         echo json_encode([
             'ok' => false,
@@ -691,13 +716,19 @@ if ($accion === 'procesar_pedido') {
                     'id_cliente' => $idUsuario,
                     'fecha' => $fechaActual,
                     'fecha_pedido' => $fechaActual,
+                    'fecha_creacion' => $fechaActual,
+                    'subtotal' => $subtotal,
+                    'costo_envio' => $envio,
+                    'envio' => $envio,
                     'total' => $totalPagar,
+                    'total_pedido' => $totalPagar,
                     'monto_total' => $totalPagar,
                     'valor_total' => $totalPagar,
                     'direccion_envio' => $direccionCliente,
                     'direccion' => $direccionCliente,
                     'metodo_pago' => 'Pago Contraentrega',
-                    'estado' => 'Confirmado'
+                    'estado' => 'Confirmado',
+                    'estado_pedido' => 'Confirmado'
                 ]
             );
 
@@ -728,7 +759,9 @@ if ($accion === 'procesar_pedido') {
                         'cantidad' => $cantItem,
                         'precio_unitario' => $precioItem,
                         'precio' => $precioItem,
-                        'subtotal' => $subItem
+                        'valor_unitario' => $precioItem,
+                        'subtotal' => $subItem,
+                        'total' => $subItem
                     ]
                 );
             }
@@ -755,6 +788,12 @@ if ($accion === 'procesar_pedido') {
         }
 
         if ($idPedidoInsertado > 0) {
+            $codigoOrden =
+                'TS-' .
+                str_pad((string) $idPedidoInsertado, 4, '0', STR_PAD_LEFT);
+            $numeroFacturaFormateado =
+                $codigoOrden;
+
             insertarSegunColumnas(
                 $conn,
                 'facturas',
@@ -762,18 +801,42 @@ if ($accion === 'procesar_pedido') {
                     'id_pedido' => $idPedidoInsertado,
                     'id_usuario' => $idUsuario,
                     'id_cliente' => $idUsuario,
-                    'numero_factura' => $codigoOrden,
+                    'numero_factura' => $numeroFacturaFormateado,
                     'codigo' => $codigoOrden,
                     'fecha' => $fechaActual,
                     'fecha_emision' => $fechaActual,
                     'fecha_factura' => $fechaActual,
                     'subtotal' => $subtotal,
+                    'impuestos' => $envio,
+                    'total_factura' => $totalPagar,
                     'total' => $totalPagar,
                     'monto_total' => $totalPagar,
                     'metodo_pago' => 'Pago Contraentrega',
                     'estado' => 'Pagada'
                 ]
             );
+        }
+
+        try {
+            $idCarLimpiar =
+                obtenerOCrearCarritoBd(
+                    $conn,
+                    $idUsuario
+                );
+            if ($idCarLimpiar > 0) {
+                $sqlLimpiar =
+                    "DELETE FROM detalle_carrito WHERE id_carrito = :idc";
+                $stmtLimp =
+                    $conn->prepare($sqlLimpiar);
+                $stmtLimp->bindParam(
+                    ':idc',
+                    $idCarLimpiar,
+                    PDO::PARAM_INT
+                );
+                $stmtLimp->execute();
+            }
+        } catch (Throwable $e) {
+            // Continúa
         }
     }
 
