@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Smart - Pedido Confirmado</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/tiendasmart/assets/css/estilos.css">
+</head>
+<body class="bg-mesh-gradient d-flex flex-column min-vh-100">
+
+    <!-- Header dinámico -->
+    <div id="header-container"></div>
+
+    <main class="flex-grow-1 container d-flex align-items-center justify-content-center py-5">
+        <div class="w-100" style="max-width: 700px;">
+            <!-- Contenedor Principal con Glassmorphism -->
+            <div class="glass-card p-5 rounded-4 shadow text-center my-3" id="contenedor-resumen-pedido">
+                <!-- Icono de Éxito -->
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                </div>
+
+                <!-- Título y Mensaje -->
+                <h1 class="fw-bold text-dark mb-2">¡Pedido Confirmado!</h1>
+                <p class="text-muted mb-4">Gracias por tu compra en Tienda Smart. Hemos registrado tu pedido en el sistema y lo estamos preparando.</p>
+
+                <!-- Tarjeta Interna de Detalles -->
+                <div class="bg-light bg-opacity-50 p-4 rounded-3 text-start my-4 border border-light">
+                    <div class="row g-2 small">
+                        <div class="col-12 col-sm-6">
+                            <span class="text-muted d-block">Número de Orden:</span>
+                            <span id="resumen-orden" class="fw-bold text-dark fs-6">#TS-0001</span>
+                        </div>
+                        <div class="col-12 col-sm-6">
+                            <span class="text-muted d-block">Fecha:</span>
+                            <span id="resumen-fecha" class="fw-bold text-dark fs-6">Hoy</span>
+                        </div>
+                        <div class="col-12 col-sm-6 mt-3">
+                            <span class="text-muted d-block">Método de Pago:</span>
+                            <span id="resumen-metodo" class="fw-bold text-dark">Pago Contraentrega</span>
+                        </div>
+                        <div class="col-12 col-sm-6 mt-3">
+                            <span class="text-muted d-block">Dirección de Envío:</span>
+                            <span id="resumen-direccion" class="fw-bold text-dark">Principal</span>
+                        </div>
+                        <div class="col-12 mt-3 pt-2 border-top">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted fw-semibold">Total Pagado (Envío incluido):</span>
+                                <span id="resumen-total-pagado" class="fw-bold text-success fs-5">&#36;0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="/tiendasmart/index.html" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold">
+                        <i class="bi bi-house-door me-1"></i> Volver al Inicio
+                    </a>
+                    <a href="/tiendasmart/views/catalogo/catalogo.html" class="btn btn-primary rounded-pill px-4 py-2 fw-bold shadow-sm">
+                        <i class="bi bi-grid me-1"></i> Seguir Comprando
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer dinámico -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Script principal -->
+    <script src="/tiendasmart/assets/js/main.js"></script>
+</body>
+</html>

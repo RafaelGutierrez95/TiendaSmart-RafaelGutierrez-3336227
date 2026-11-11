@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda Smart - Carrito de Compras</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Estilos personalizados -->
+    <link rel="stylesheet" href="/tiendasmart/assets/css/estilos.css">
+</head>
+<body class="bg-mesh-gradient d-flex flex-column min-vh-100">
+
+    <!-- Header dinámico -->
+    <div id="header-container"></div>
+
+    <main class="flex-grow-1 container py-5">
+        <!-- Título de la página -->
+        <div class="mb-4">
+            <h1 class="fw-bold text-primary"><i class="bi bi-cart3 me-2"></i> Tu Carrito de Compras</h1>
+            <p class="text-muted">Revisa tus productos antes de continuar con la compra</p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Columna Izquierda: Lista Dinámica de Productos -->
+            <div class="col-lg-8">
+                <div class="glass-card p-4 rounded-4 shadow-sm">
+                    <h4 class="fw-bold mb-4">Productos Seleccionados</h4>
+
+                    <div id="lista-items-carrito">
+                        <div class="text-center py-4 text-muted">
+                            Cargando tu carrito...
+                        </div>
+                    </div>
+
+                    <!-- Enlace para seguir comprando -->
+                    <div class="mt-4">
+                        <a href="/tiendasmart/views/catalogo/catalogo.html" class="text-decoration-none text-primary fw-semibold">
+                            <i class="bi bi-arrow-left me-1"></i> Seguir comprando
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Resumen de Compra -->
+            <div class="col-lg-4">
+                <div class="glass-card p-4 rounded-4 shadow-sm sticky-top" style="top: 2rem;">
+                    <h4 class="fw-bold mb-4">Resumen del Pedido</h4>
+                    
+                    <div class="d-flex justify-content-between mb-2 text-muted">
+                        <span>Subtotal</span>
+                        <span class="resumen-subtotal fw-semibold text-dark">&#36;0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 text-muted">
+                        <span>Costo de Envío</span>
+                        <span class="resumen-envio fw-semibold text-dark">&#36;0</span>
+                    </div>
+
+                    <hr class="text-muted">
+
+                    <div class="d-flex justify-content-between mb-4 align-items-center">
+                        <span class="fw-bold fs-5 text-dark">Total a Pagar</span>
+                        <span class="resumen-total fw-bold fs-4 text-success">&#36;0</span>
+                    </div>
+
+                    <!-- Botón de pago conectado al backend -->
+                    <button id="btn-proceder-pago" type="button" class="w-100 btn btn-lg btn-success rounded-pill fw-bold shadow-sm text-center py-3">
+                        Confirmar Pedido <i class="bi bi-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer dinámico -->
+    <div id="footer-container"></div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Script principal -->
+    <script src="/tiendasmart/assets/js/main.js"></script>
+</body>
+</html>
